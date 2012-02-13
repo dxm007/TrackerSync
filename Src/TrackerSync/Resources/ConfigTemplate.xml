@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- TrackerSyncConfig defines the configuration for the entire tracker synchronizer. It MUST include exactly
+     TWO <TrackerConfig> elements which define the two tracker sources to be synchronized. Child element list for
+     each <TrackerConfig> varies and is defined by the value of "type" attribute of the <TrackerConfig> element -->
+<TrackerSyncConfig>
+
+  <!-- This element describes Trello tracker source -->
+  <TrackerConfig type="Trello">
+    
+    <!-- Enter user name of the Trello account which the synchronizer will use -->
+    <UserName></UserName>
+    
+    <!-- Visit https://trello.com/docs to obtain both DevKey and MemberToken. MemberToken is associated with the
+         Trello account specified in <UserName>. It must be active (currently they expire every 30 days) and it
+         must have both read and write privileges -->
+    <DevKey></DevKey>
+    <MemberToken></MemberToken>
+    
+    <!-- Specify the name of the Trello board to synchronize -->
+    <BoardName></BoardName>
+    
+    <!-- Specify which lists contain cards which are to be considered "Open". Since Trello allows any number of
+         lists, multiple lists could contain open cards (e.g. "Product Backlog", "Release Backlog", "In Progress") -->
+    <OpenCardLists>
+      <Item></Item>
+      <Item></Item>
+      <Item></Item>
+    </OpenCardLists>
+    
+    <!-- Specify which lists contain cards which are to be considered "Closed". Since Trello allows any number of
+         lists, multiple lists could contain closed cards.  NOTE: This utility has slightly different concept of
+         "closed" than Trello itself.  "Closed" issue is one that was addressed. It still shows up in the UI but
+         in a list designated for closed issues (e.g. list name "Completed").  In Trello "closed" means that the
+         card is to be archived and should no longer be displayed in the UI.  This utility does not archive cards nor
+         does it access those cards that have been archived in Trello. -->
+    <ClosedCardLists>
+      <Item></Item>
+      <Item></Item>
+      <Item></Item>
+    </ClosedCardLists>
+    
+    <!-- Since Trello allows multiple lists, the synchronizer utility needs to where to place newly created issues
+         in Trello.  This element specifies the list for the new issues.-->
+    <NewCardList></NewCardList>
+  </TrackerConfig>
+
+  <!-- This element describes GitHub tracker source -->
+  <TrackerConfig type="GitHub">
+    
+    <!-- Specify username and password which will be used to access GitHub. 
+         SECURITY WARNING:
+            This file is saved as plaintext on your hard drive and anyone with access to it will be able to
+            read your password.  If you are concerned about this, enter your password only when doing synchronization
+            and then delete it as soon as your done.  In the future, this synchonization utility could be modified to
+            ask for a password at runtime if one is not provided in this configuration file. Currently it does not do that -->
+    <Credentials UserName="" Password=""/>
+    
+    <!-- Specify which GitHub repo's issue list is to be synchronized -->
+    <Repo></Repo>
+  </TrackerConfig>
+
+</TrackerSyncConfig>

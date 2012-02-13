@@ -1,0 +1,41 @@
+If we were to get full list of issues from both sources:
+
+            Input Conditions                      |
+GitHub                      Trello                | Action
+----------------------------------------------------------------------------------------------------------------------------------
+Open                        Open                    None
+Open                        Closed                  Update on GitHub to close issue
+Open                        -----                   Add issue on Trello
+Closed                      Open                    Update on Trello to close issue
+Closed                      Closed                  None
+Closed                      -----                   None
+-----                       Open                    Add issue to GitHub
+-----                       Closed                  None
+-----                       -----                   -----
+
+
+
+If we were to get a list of only open issues from both sources:
+
+            Input Conditions                      |
+GitHub                      Trello                | Action
+----------------------------------------------------------------------------------------------------------------------------------
+Open                        Open                    None
+Open                        -----                   Update on GitHub to close issue
+Open                        -----                   Add issue on Trello
+-----                       Open                    Update on Trello to close issue 
+-----                       Open                    Add issue to GitHub
+
+
+
+If we were to get full list of issues from Trello and only open ones from GitHub:
+
+            Input Conditions                      |
+GitHub                      Trello                | Action
+----------------------------------------------------------------------------------------------------------------------------------
+Open                        Open                    None
+Open                        Closed                  Update on GitHub to close issue
+Open                        -----                   Add issue on Trello
+-----                       Open                    [Search GitHub for specific ID. If found] Update on Trello to close issue
+-----                       Open                    [Search GitHub for specific ID. If not found] Add issue to GitHub
+-----                       Closed                  None
