@@ -77,6 +77,8 @@
   <Target Name="PrepareProjectFolders">
     <MakeDir Directories="$(BinDir)"/>
     <MakeDir Directories="$(SymbolsDir)"/>
+	
+	<Copy SourceFiles="$(RootProjectDir)\Third\Json.NET\4.0R5\Bin\Net\Newtonsoft.Json.dll" DestinationFolder="$(BinDir)" />
   </Target>
   
   <Target Name="Build" DependsOnTargets="PrepareProjectFolders;UpdateVersionFiles">
