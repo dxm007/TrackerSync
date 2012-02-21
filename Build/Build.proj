@@ -1,0 +1,127 @@
+<!-- ==============================================================================================
+===================================================================================================
+    
+    Copyright (c) 2012 Dennis Mnuskin
+    
+    This file is part of TrackerSync application.
+    
+    This source code is distributed under the MIT license.  For full text, see
+    http://www.opensource.org/licenses/mit-license.php Same text is found in LICENSE file which
+    is located in root directory of the project.
+    
+    NOTES: This MSBuild script uses MSBuild Community Tasks for certain tasks which are not
+    provided by base MSBuild functionality. These include creation of ZIP files and generation
+    of GlobalAssemblyInfo.cs file for common versioning scheme support.  These tools must be
+    installed prior to running the build. The can be downloaded from:
+    http://msbuildtasks.tigris.org/
+    
+    = = = = = = = = = = = = = USAGE: = = = = = = = = = = = = =
+    
+    msbuild Build.proj [/p:Configuration=(Debug|Release)] [/t:(Build|Rebuild|Clean|Deploy)]
+                       [/p:BumpVersion=True]
+
+    "/p:Configuration" selects whether to build Debug or Release.  If not specified, default
+    configuration is Release.
+
+    "/t:" selects a target which determines build scripts actions:
+        Build     - Performs incremental build of all projects
+        Rebuild   - Performs full rebuild of all projects
+        Clean     - Cleans intermediate and output files from all projects.
+
+    "/p:BumpVersion" specifies if build version should automatically be dumped up. This will change
+    the version string in the master version file, Version.txt. NOTE: This only bumps up build versions
+    which occur frequently and possibly, nightly. Version.txt must be manually editted when product
+    major and/or minor versions are bumped up.
+
+    For more advanced command line options, see "MSBuild Command Line Reference" page in MSDN 
+    Library.
+
+===================================================================================================
+=============================================================================================== -->
+
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets"/>
+  
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' != 'Debug' ">Release</Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RootProjectDir>$(MSBuildProjectDirectory)\..</RootProjectDir>
+    <BinDir>$(RootProjectDir)\Bin\$(Configuration)</BinDir>
+    <SymbolsDir>$(RootProjectDir)\Symbols\$(Configuration)</SymbolsDir>
+    <SourceDir>$(RootProjectDir)\Src</SourceDir>
+    <BuildDir>$(MSBuildProjectDirectory)</BuildDir>
+    <GlobalAssemblyInfoFile>$(BuildDir)\GlobalAssemblyInfo.cs</GlobalAssemblyInfoFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ProgramFiles32>$(MSBuildProgramFiles32)</ProgramFiles32>
+    <ProgramFiles32 Condition=" '$(ProgramFiles32)' == '' ">$(ProgramFiles%28x86%29)</ProgramFiles32>
+    <ProgramFiles32 Condition=" '$(ProgramFiles32)' == '' ">$(ProgramFiles)</ProgramFiles32>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <ProjectToBuild Include="$(SourceDir)\TrackerSync.sln"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <BinFile Include="$(BinDir)\*.exe"/>
+	<BinFile Include="$(BinDir)\*.dll"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <SymbolFile Include="$(SymbolsDir)\*.*"/>
+  </ItemGroup>
+
+  <Target Name="PrepareProjectFolders">
+    <MakeDir Directories="$(BinDir)"/>
+    <MakeDir Directories="$(SymbolsDir)"/>
+  </Target>
+  
+  <Target Name="Build" DependsOnTargets="PrepareProjectFolders;UpdateVersionFiles">
+    <MSBuild Projects="@(ProjectToBuild)" Properties="Configuration=$(Configuration)" Targets="Build"/>
+  </Target>
+
+  <Target Name="Clean">
+    <MSBuild Projects="@(ProjectToBuild)" Properties="Configuration=$(Configuration)" Targets="Clean"/>
+    <Delete Files="@(BinFile)"/>
+    <Delete Files="@(SymbolFile)"/>
+  </Target>
+
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
+
+  <Target Name="UpdateVersionFiles" DependsOnTargets="OpenVersionFile;GenerateVerAssemblyInfo"/>
+
+  <Target Name="OpenVersionFile">
+    <PropertyGroup Condition=" '$(BumpVersion)' == 'True' ">
+      <VersionBuildType>Increment</VersionBuildType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(BumpVersion)' != 'True' ">
+      <VersionBuildType>None</VersionBuildType>
+    </PropertyGroup>
+
+    <Version VersionFile="Version.txt" BuildType="$(VersionBuildType)" >
+      <Output TaskParameter="Major" PropertyName="VersionMajor"/>
+      <Output TaskParameter="Minor" PropertyName="VersionMinor"/>
+      <Output TaskParameter="Build" PropertyName="VersionBuild"/>
+      <Output TaskParameter="Revision" PropertyName="VersionRev"/>
+    </Version>
+
+    <PropertyGroup>
+      <VersionString>$(VersionMajor).$(VersionMinor).$(VersionBuild).$(VersionRev)</VersionString>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="GenerateVerAssemblyInfo">
+    <AssemblyInfo CodeLanguage="CS"
+                  OutputFile="$(GlobalAssemblyInfoFile)"
+                  AssemblyCompany=""
+                  AssemblyProduct="TrackerSync"
+                  AssemblyCopyright="Copyright © 2012 Dennis Mnuskin"
+                  AssemblyVersion="$(VersionString)"
+                  AssemblyFileVersion="$(VersionString)" />
+  </Target>
+
+</Project>

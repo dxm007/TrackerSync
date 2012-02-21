@@ -6,9 +6,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackerSync.Engine", "TrackerSync.Engine\TrackerSync.Engine.csproj", "{BD36D1A1-18C5-4FA3-B175-532BB9A3B456}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4C6D2EA8-FCB8-4587-BA4F-8F24AB0C4B65}"
-	ProjectSection(SolutionItems) = preProject
-		ClassTemplate.cs = ClassTemplate.cs
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

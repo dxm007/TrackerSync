@@ -60,6 +60,27 @@ namespace TrackerSync
             return returnVal;
         }
 
+        static Program()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler( OnAssemblyResolve );
+        }
+
+        private static Assembly OnAssemblyResolve( object sender, ResolveEventArgs args )
+        {
+            Assembly    assembly = Assembly.GetExecutingAssembly();
+            string      resourceName = assembly.GetName().Name + ".Resources." +
+                                       new AssemblyName( args.Name ).Name + ".dll";
+
+            using( var stream = assembly.GetManifestResourceStream( resourceName ) )
+            {
+                byte[] assemblyData = new byte[ stream.Length ];
+
+                stream.Read( assemblyData, 0, assemblyData.Length );
+
+                return Assembly.Load( assemblyData );
+            }
+        }
+
         private static void RunSyncEngine( CommandLine commandLine )
         {
             SyncSettings    settings = new SyncSettings( commandLine.ConfigFile );

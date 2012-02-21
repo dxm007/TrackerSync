@@ -1,4 +1,6 @@
 bin/
 obj/
+symbols/
 *.suo
 *.user
+/Build/GlobalAssemblyInfo.cs
