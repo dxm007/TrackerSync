@@ -21,12 +21,36 @@ using System.Text;
 
 namespace TrackerSync.Sources.Trello
 {
+    /// <summary>
+    /// Base class for all HTTP REST requests made against Trello Web Services API
+    /// </summary>
     abstract class HttpRequest : TrackerSync.Sources.HttpRequest
     {
+        #region ----------------------- Public Members ------------------------
+
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public HttpRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
+        public new RuntimeSourceSettings SourceSettings
+        {
+            get { return (RuntimeSourceSettings)base.SourceSettings; }
+        }
+
+        #endregion
+
+        #region ----------------------- Protected Members ---------------------
+
+        /// <summary>
+        /// To be called by a deriving class when the request is to be executed
+        /// </summary>
+        /// <param name="suffixFormat">Suffix format string to be tacked onto the end of a request URL</param>
+        /// <param name="args">Arguments for the format string</param>
         protected void SendRequest( string              suffixFormat,
                                     params object[]     args          )
         {
@@ -39,9 +63,6 @@ namespace TrackerSync.Sources.Trello
             base.SendRequest( url, null );
         }
 
-        public new RuntimeSourceSettings SourceSettings
-        {
-            get { return (RuntimeSourceSettings)base.SourceSettings; }
-        }
+        #endregion
     }
 }

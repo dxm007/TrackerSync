@@ -23,10 +23,17 @@ using TrackerSync.Data;
 
 namespace TrackerSync.Persistence
 {
+    /// <summary>
+    /// This class is used mainly for debugging to dump certain TrackerSync information to a file
+    /// </summary>
     class FileWriter : IDisposable
     {
         #region ----------------------- Public Members ------------------------
 
+        /// <summary>
+        /// Initializes a new instance of the FileWriter to write to the specific file
+        /// </summary>
+        /// <param name="filePath">Path of a file to write to. If a file already exists, it will be overwritten</param>
         public FileWriter( string filePath )
         {
             FileStream stream = new FileStream( filePath, FileMode.Create, FileAccess.Write, FileShare.Read );
@@ -34,6 +41,10 @@ namespace TrackerSync.Persistence
             _writer = new StreamWriter( stream );
         }
 
+        /// <summary>
+        /// Writes out a list of issues
+        /// </summary>
+        /// <param name="issues">List of issues to write out</param>
         public void Write( IEnumerable< Issue > issues )
         {
             foreach( var x in issues )
@@ -46,6 +57,10 @@ namespace TrackerSync.Persistence
             }
         }
 
+        /// <summary>
+        /// Writes out a single issue
+        /// </summary>
+        /// <param name="issue">Issue to be written out</param>
         public void Write( Issue issue )
         {
             _writer.WriteLine( "{0}[{2}]: {1}", issue.ID, issue.Description,
@@ -53,7 +68,10 @@ namespace TrackerSync.Persistence
             _writer.WriteLine( "{0}", issue.Details );
         }
 
-        public void  Dispose()
+        #region - - - - - - - IDisposable Interface - - - - - - - - -
+
+        /// <inheritdoc/>
+        public void Dispose()
         {
             if( _writer != null )
             {
@@ -63,8 +81,6 @@ namespace TrackerSync.Persistence
         }
 
         #endregion
-
-        #region ----------------------- Protected Members ---------------------
 
         #endregion
 

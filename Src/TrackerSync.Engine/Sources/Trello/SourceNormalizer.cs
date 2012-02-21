@@ -23,10 +23,24 @@ using TrackerSync.Data;
 
 namespace TrackerSync.Sources.Trello
 {
-    public class SourceNormalizer : SourceDecoratorBase
+    /// <summary>
+    /// Trello source decorator responsible for normalizing issues retrieved from/sent to
+    /// Trello into a standard format used by the rest of the synchronizer application. 
+    /// </summary>
+    /// <remarks>
+    /// Primary responsibility of this class is to convert standard (ID, Description) issue
+    /// properties into "Description" field which contains "[ID]: [Description]". This is 
+    /// necessary because Trello uses a different ID system (GUIDs of some sort) which we
+    /// do not want to work with outside of their API.
+    /// </remarks>
+    public class SourceNormalizer : SourceDecorator
     {
         #region ----------------------- Public Members ------------------------
 
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="contained">Trello tracker source to be normalized</param>
         public SourceNormalizer( ISource contained ) : base( contained )
         {
             _NormalToContainedIdMap = new Dictionary<string,string>();
@@ -34,22 +48,29 @@ namespace TrackerSync.Sources.Trello
 
         #region - - - - - - - ISource Interface - - - - - - - - - - -
 
+        /// <inheritdoc/>
         public override IEnumerable< Issue > GetIssues()
         {
             return from x in Contained.GetIssues()
                    select Normalize( x );
         }
 
+        /// <inheritdoc/>
         public override Issue GetIssue( string id )
         {
-            return Normalize( base.GetIssue( id ) );
+            // When we ask for all issues from Trello (via "GetIssuesList" request), we get the entire
+            // list, including closed issues. If we didn't get the issue before, "GetIssue" request
+            // won't return anything either, so it is safe to simply return 'null'.
+            return null;
         }
 
+        /// <inheritdoc/>
         public override void AddIssue( Issue issue )
         {
             base.AddIssue( Denormalize( issue ) );
         }
 
+        /// <inheritdoc/>
         public override void UpdateIssue( Issue         issue,
                                           IssueFieldId  fieldsToUpdate )
         {
@@ -57,16 +78,13 @@ namespace TrackerSync.Sources.Trello
                               Denormalize( fieldsToUpdate ) );
         }
 
+        /// <inheritdoc/>
         public override void CloseIssue( Issue issue )
         {
             base.CloseIssue( Denormalize( issue ) );
         }
 
         #endregion
-
-        #endregion
-
-        #region ----------------------- Protected Members ---------------------
 
         #endregion
 
@@ -81,8 +99,6 @@ namespace TrackerSync.Sources.Trello
             issue.ID = ( match.Groups.Count > 1 ? match.Groups[ 1 ].Value : "" );
             issue.Description = denormalizedIssue.Description.Substring( match.Length );
             issue.OriginalIssue = denormalizedIssue;
-
-            //_NormalToContainedIdMap[ issue.ID ] = denormalizedIssue.ID;
 
             return issue;
         }
@@ -118,8 +134,7 @@ namespace TrackerSync.Sources.Trello
 
 
         private Dictionary< string, string >    _NormalToContainedIdMap;
-
-        private static readonly Regex _descSplitRegExp = new Regex( @"\AS(\d+):\s*" );
+        private static readonly Regex           _descSplitRegExp = new Regex( @"\AS(\d+):\s*" );
 
         #endregion
     }

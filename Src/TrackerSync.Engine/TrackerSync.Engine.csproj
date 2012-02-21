@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\TrackerSync.Engine.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\TrackerSync.Engine.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -62,7 +64,7 @@
     <Compile Include="Sources\LoggingSourceDecorator.cs" />
     <Compile Include="Sources\ReadOnlySourceDecorator.cs" />
     <Compile Include="Sources\Source.cs" />
-    <Compile Include="Sources\SourceDecoratorBase.cs" />
+    <Compile Include="Sources\SourceDecorator.cs" />
     <Compile Include="Sources\SourceFactory.cs" />
     <Compile Include="Sources\SourceSettings.cs" />
     <Compile Include="Sources\Trello\Requests.cs" />

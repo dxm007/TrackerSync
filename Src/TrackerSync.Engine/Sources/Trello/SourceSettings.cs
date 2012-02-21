@@ -21,14 +21,24 @@ using System.Xml.Linq;
 
 namespace TrackerSync.Sources.Trello
 {
+    /// <summary>
+    /// Describes communications settings with Trello web services API
+    /// </summary>
     public class SourceSettings : TrackerSync.Sources.SourceSettings
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public SourceSettings()
         {
             base.GetAllIncludesClosedIssues = true;
             base.IsPrimary = false;
         }
 
+        /// <summary>
+        /// Copy constructor
+        /// </summary>
+        /// <param name="other">Existing instance from which to copy the property values</param>
         public SourceSettings( SourceSettings other ) : base( other )
         {
             this.UserName = other.UserName;
@@ -40,22 +50,47 @@ namespace TrackerSync.Sources.Trello
             this.NewCardList = other.NewCardList;
         }
 
+        /// <summary>
+        /// Gets the name of the user who own the issues board
+        /// </summary>
         public string UserName { get; private set; }
 
+        /// <summary>
+        /// Gets developer key
+        /// </summary>
         public string DevKey { get; private set; }
 
+        /// <summary>
+        /// Gets member token
+        /// </summary>
         public string MemberToken { get; private set; }
 
+        /// <summary>
+        /// Gets the name of the board which contains the list of issues
+        /// </summary>
         public string BoardName { get; private set; }
 
+        /// <summary>
+        /// Gets an array of names which identify lists with open issues
+        /// </summary>
         public string[] OpenCardLists { get; private set; }
 
+        /// <summary>
+        /// Gets an array of names which identify lists with closed issues
+        /// </summary>
         public string[] ClosedCardLists { get; private set; }
 
+        /// <summary>
+        /// Gets the name of the list into which newly added issues should be placed
+        /// </summary>
         public string NewCardList { get; private set; }
 
+        /// <summary>
+        /// Gets the base URL string for the Trello API
+        /// </summary>
         public string ApiServerUrl { get { return "https://api.trello.com"; } }
 
+        /// <inheritdoc/>
         public override void Load( XElement elem )
         {
             base.Load( elem );
@@ -132,24 +167,34 @@ namespace TrackerSync.Sources.Trello
     }
 
 
+    /// <summary>
+    /// Extends SourceSettings class by defining additional connection properties which
+    /// are needed at runtime
+    /// </summary>
     class RuntimeSourceSettings : SourceSettings
     {
-        public RuntimeSourceSettings()
-        {
-            BoardId = "4f1bcc8e2d46bda3240698b9";
-        }
-
         public RuntimeSourceSettings( SourceSettings other ) : base( other )
         {
-            // TEMP
         }
 
+        /// <summary>
+        /// Gets/sets an array of IDs which identify lists that contain open issues
+        /// </summary>
         public string[] OpenCardListIds { get; set; }
 
+        /// <summary>
+        /// Gets/sets an array of IDs which identfy lists that contain closed issues
+        /// </summary>
         public string[] ClosedCardListIds { get; set; }
 
+        /// <summary>
+        /// Gets/sets an ID of a list into which newly created issues should be placed
+        /// </summary>
         public string NewCardListId { get; set; }
 
+        /// <summary>
+        /// Gets/sets an ID of the board which contains the issues.
+        /// </summary>
         public string BoardId { get; set; }
     }
 }

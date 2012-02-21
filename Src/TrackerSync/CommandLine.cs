@@ -28,29 +28,62 @@ namespace TrackerSync
         CreateConfigTemplate,
     }
 
+    /// <summary>
+    /// Responsible for parsing command line for TrackerSync console application
+    /// </summary>
     class CommandLine
     {
+        #region ----------------------- Public Members ------------------------
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public CommandLine()
         {
             this.LogLevel = SyncLogLevel.None;
         }
 
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="args">Command line argument list as received by the Main method</param>
         public CommandLine( string[] args ) : this()
         {
             Parse( args );
         }
 
+        /// <summary>
+        /// Gets a flag which indicates whether or not TrackerSync should pause on exit before terminating
+        /// </summary>
         public bool PauseOnExit { get; private set; }
 
+        /// <summary>
+        /// Gets a flag which indicates whether or not TrackerSync should run and report changes which are
+        /// to be made without actually making the updates (i.e. read only mode). This property is null 
+        /// if the option is not specified on the command line
+        /// </summary>
         public bool? NoUpdates { get; private set; }
 
+        /// <summary>
+        /// Gets logging level of the synchronizer. This property is null if logging level was not
+        /// specified on the command line
+        /// </summary>
         public SyncLogLevel? LogLevel { get; private set; }
 
+        /// <summary>
+        /// Gets TrackerSync execution mode
+        /// </summary>
         public SyncAppMode Mode { get; private set; }
 
+        /// <summary>
+        /// Gets a path to the configuration file which defines synchronization engine runtime parameters
+        /// </summary>
         public string ConfigFile { get; private set; }
 
-
+        /// <summary>
+        /// Parses command line string array and fills in public properties of this class
+        /// </summary>
+        /// <param name="args">Command line arguments as received by the Main method</param>
         public void Parse( string[] args )
         {
             int     argIdx;
@@ -104,6 +137,10 @@ namespace TrackerSync
                 ValidateOptions();
             }
         }
+
+        #endregion
+
+        #region ----------------------- Private Members -----------------------
 
         private void ReportCommandLineError( string errorMsgFormat, params object[] args )
         {
@@ -182,5 +219,7 @@ namespace TrackerSync
                 ReportCommandLineError( "Configuration file (--config) must be specified" );
             }
         }
+
+        #endregion
     }
 }

@@ -23,13 +23,21 @@ using TrackerSync.Data;
 
 namespace TrackerSync.Sources.Trello
 {
+    /// <summary>
+    /// Source class for interacting with Trello web services API
+    /// </summary>
     public class Source : Sources.Source
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Settings object describing parameters for communicating with Trello</param>
         public Source( SourceSettings settings )
                 : base( new RuntimeSourceSettings( settings ) )
         {
         }
 
+        /// <inheritdoc/>
         public override void Connect()
         {
             new ResolveBoardIdRequest( Settings ).Execute();

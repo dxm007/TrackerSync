@@ -23,28 +23,56 @@ using TrackerSync.Data;
 
 namespace TrackerSync.Sources
 {
+    /// <summary>
+    /// Configuration class for LoggingSourceDecorator
+    /// </summary>
     public class LoggingSourceConfig
     {
+        /// <summary>
+        /// Initializes an instance of LoggingSourceConfig with default settings
+        /// </summary>
         public LoggingSourceConfig()
         {
         }
 
+        /// <summary>
+        /// Initializes an instance of LoggingSourceConfig from another instance of
+        /// the class
+        /// </summary>
+        /// <param name="other">Existing instance which is providing source values</param>
         public LoggingSourceConfig( LoggingSourceConfig other )
         {
             this.IsInputLogged = other.IsInputLogged;
             this.IsOutputLogged = other.IsOutputLogged;
         }
 
+        /// <summary>
+        /// Gets/sets a flag indicating if input calls (i.e. those that get data from tracker
+        /// sources) should be logged
+        /// </summary>
         public bool IsInputLogged { get; set; }
 
+        /// <summary>
+        /// Gets/sets a flag indicating if output calls (i.e. those that write data to
+        /// tracker sources) should be logged
+        /// </summary>
         public bool IsOutputLogged { get; set; }
     }
 
 
-    public class LoggingSourceDecorator : SourceDecoratorBase
+    /// <summary>
+    /// Source decorator which adds logging capability to every call on the ISource interface
+    /// </summary>
+    public class LoggingSourceDecorator : SourceDecorator
     {
         #region ----------------------- Public Members ------------------------
 
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="contained">Tracker source object whose calls are to be logged</param>
+        /// <param name="logWriter">TextWriter which will receive log output</param>
+        /// <param name="config">Configuration object for the LoggingSourceDecorator</param>
         public LoggingSourceDecorator( ISource              contained,
                                        TextWriter           logWriter,
                                        LoggingSourceConfig  config     ) : base( contained )
@@ -55,6 +83,7 @@ namespace TrackerSync.Sources
 
         #region - - - - - - - ISource Interface - - - - - - - - - - -
 
+        /// <inheritdoc/>
         public override IEnumerable<Issue> GetIssues()
         {
             if( _config.IsInputLogged )
@@ -67,6 +96,7 @@ namespace TrackerSync.Sources
             }
         }
 
+        /// <inheritdoc/>
         public override Issue GetIssue( string id )
         {
             var issue = base.GetIssue( id );
@@ -84,6 +114,7 @@ namespace TrackerSync.Sources
             return issue;
         }
 
+        /// <inheritdoc/>
         public override void AddIssue( Issue issue )
         {
             if( _config.IsOutputLogged )
@@ -94,6 +125,7 @@ namespace TrackerSync.Sources
             Contained.AddIssue( issue );
         }
 
+        /// <inheritdoc/>
         public override void UpdateIssue( Issue          issue,
                                           IssueFieldId   fieldsToUpdate )
         {
@@ -108,6 +140,7 @@ namespace TrackerSync.Sources
             Contained.UpdateIssue( issue, fieldsToUpdate );
         }
 
+        /// <inheritdoc/>
         public override void CloseIssue( Issue issue )
         {
             if( _config.IsOutputLogged )

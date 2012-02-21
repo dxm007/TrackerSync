@@ -28,13 +28,20 @@ using TrackerSync.Data;
 
 namespace TrackerSync.Sources.GitHub
 {
-
+    /// <summary>
+    /// Source class for iteracting with GitHub web services API
+    /// </summary>
     public class Source : Sources.Source
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Settings object describing parameters for communicating with GitHub</param>
         public Source( SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public override void Connect()
         {
             new VerifyInfoRequest( Settings ).Execute();

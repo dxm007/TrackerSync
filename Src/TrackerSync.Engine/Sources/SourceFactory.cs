@@ -19,18 +19,48 @@ using System.Text;
 
 namespace TrackerSync.Sources
 {
+    /// <summary>
+    /// Tracker source factory class.
+    /// </summary>
+    /// <remarks>
+    /// Implements FACTORY design pattern to create new tracker source objects based on few 
+    /// global settings as well as SourceSettings instance describing the configuration for the
+    /// source to be created.
+    /// 
+    /// Current implementation of this class breaks OCP principle by maintaining a hardcoded
+    /// list of different tracker source types with intent of keeping the desing simple since
+    /// at the moment very few source types are supported.  In the future, we would probably 
+    /// changes this to use reflection or some other dynamic registration mechanism.
+    /// </remarks>
     public class SourceFactory
     {
+        #region ----------------------- Public Members ------------------------
+
+        /// <summary>
+        /// Creates a new instances of the SourceFactory
+        /// </summary>
         public SourceFactory()
         {
             LogLevel = SyncLogLevel.None;
             NoUpdates = false;
         }
 
+        /// <summary>
+        /// Gets/sets the logging level to applied to the source
+        /// </summary>
         public SyncLogLevel LogLevel { get; set; }
 
+        /// <summary>
+        /// Gets/sets a flag which indicates whether the updates should be sent back to the
+        /// source, or if the source should act as if it's read-only.
+        /// </summary>
         public bool NoUpdates { get; set; }
 
+        /// <summary>
+        /// Creates a new instance of the source tracker.
+        /// </summary>
+        /// <param name="settings">Source settings object describing the source configuration</param>
+        /// <returns>Newly created source instance</returns>
         public ISource Create( SourceSettings settings )
         {
             ISource     source = CreateSource( settings );
@@ -55,6 +85,10 @@ namespace TrackerSync.Sources
             return source;
         }
 
+        #endregion
+
+        #region ----------------------- Private Members -----------------------
+
         private ISource CreateSource( SourceSettings settings )
         {
             Type settingsType = settings.GetType();
@@ -74,5 +108,7 @@ namespace TrackerSync.Sources
                     "Unknown settings type: {0}", settingsType.Name ) );
             }
         }
+
+        #endregion
     }
 }

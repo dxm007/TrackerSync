@@ -28,17 +28,32 @@ using TrackerSync.Data;
 
 namespace TrackerSync.Sources.Trello
 {
+    /// <summary>
+    /// Trello request to resolve board name into a board ID. 
+    /// </summary>
     class ResolveBoardIdRequest : HttpRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public ResolveBoardIdRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <summary>
+        /// Invoked to execute the request.
+        /// </summary>
+        /// <remarks>
+        /// This request doesn't have any input or output parameters.  Upon successful completion
+        /// it updates the source settings with the resolved board ID.
+        /// </remarks>
         public void Execute()
         {
             SendRequest( "/members/{0}/boards?filter=open&fields=name", SourceSettings.UserName );
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse, Stream responseStream )
         {
             JArray jsonBoards = JArray.Load( new JsonTextReader( new StreamReader( responseStream ) ) );
@@ -59,19 +74,33 @@ namespace TrackerSync.Sources.Trello
     }
 
 
-
+    /// <summary>
+    /// Trello request to resolve list names into IDs
+    /// </summary>
     class ResolveListIdsRequest : HttpRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public ResolveListIdsRequest( Sources.SourceSettings settings ) : base( settings )
         {
             _nameIdMap = new Dictionary<string,string>();
         }
 
+        /// <summary>
+        /// Invoked to execute the request
+        /// </summary>
+        /// <remarks>
+        /// This request doesn't have any input or output parameters. Upon successful completion, this
+        /// request updates source settings with the resolved list IDs.
+        /// </remarks>
         public void Execute()
         {
             SendRequest( "/boards/{0}/lists?cards=none&filter=open&fields=name", SourceSettings.BoardId );
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse, Stream responseStream )
         {
             JArray jsonLists = JArray.Load( new JsonTextReader( new StreamReader( responseStream ) ) );
@@ -139,14 +168,21 @@ namespace TrackerSync.Sources.Trello
     }
 
 
-
+    /// <summary>
+    /// Trello API "GetIssuesList" HTTP REST request
+    /// </summary>
     class GetListOfIssuesRequest : HttpRequest,
                                    IGetIssuesListRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public GetListOfIssuesRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public IEnumerable< Issue > Execute()
         {
             SendRequest( "/boards/{0}/lists?card_fields=name,desc", SourceSettings.BoardId );
@@ -154,6 +190,7 @@ namespace TrackerSync.Sources.Trello
             return _issues;
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse, Stream responseStream )
         {
             JArray jsonLists = JArray.Load( new JsonTextReader( new StreamReader( responseStream ) ) );
@@ -179,14 +216,21 @@ namespace TrackerSync.Sources.Trello
     }
 
 
-
+    /// <summary>
+    /// Trello API "GetIssue" HTTP REST request
+    /// </summary>
     class GetIssueRequest : HttpRequest,
                             IGetIssueRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public GetIssueRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public Issue Execute( string issueId )
         {
             SendRequest( "/cards/{0}?fields=name,desc,idList", issueId );
@@ -194,6 +238,7 @@ namespace TrackerSync.Sources.Trello
             return _issue;
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse, Stream responseStream )
         {
             JObject jsonCard = JObject.Load( new JsonTextReader( new StreamReader( responseStream ) ) );
@@ -224,20 +269,28 @@ namespace TrackerSync.Sources.Trello
     }
 
 
-
+    /// <summary>
+    /// Trello API "CloseIssue" HTTP REST request
+    /// </summary>
     class CloseIssueRequest : HttpRequest,
                               ICloseIssueRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public CloseIssueRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public void Execute( Issue issue )
         {
             SendRequest( "/cards/{0}/idList?value={1}",
                          issue.ID, SourceSettings.ClosedCardListIds[0] );
         }
 
+        /// <inheritdoc/>
         protected override string GetHttpMethod()
         {
             return "PUT";
@@ -245,50 +298,65 @@ namespace TrackerSync.Sources.Trello
     }
 
 
-
+    /// <summary>
+    /// Trello API "AddIssue" HTTP REST request
+    /// </summary>
     class AddIssueRequest : HttpRequest,
                             IAddIssueRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public AddIssueRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public void Execute( Issue issue )
         {
+            StringBuilder sb = new StringBuilder();
+
             _issue = issue;
 
-            SendRequest( "/cards" );
+            sb.Append( "/cards?" ).
+               Append( "name=" ).Append( HttpUtility.UrlEncode( _issue.Description ) ).
+               Append( "&idList=" ).Append( SourceSettings.NewCardListId );
+
+            if( !string.IsNullOrEmpty( _issue.Details ) )
+            {
+                sb.Append( "&desc=" ).Append( HttpUtility.UrlEncode( _issue.Details ) );
+            }
+
+            SendRequest( sb.ToString() );
         }
 
+        /// <inheritdoc/>
         protected override string GetHttpMethod()
         {
             return "POST";
         }
 
-        protected override void FillInHttpRequest( HttpWebRequest request )
-        {
-            request.Headers.Add( "name", _issue.Description );
-            request.Headers.Add( "idList", SourceSettings.NewCardListId );
 
-            if( !string.IsNullOrEmpty( _issue.Details ) )
-            {
-                request.Headers.Add( "desc", _issue.Details );
-            }
-        }
-
-        
         private Issue       _issue;
     }
 
 
-
+    /// <summary>
+    /// Trello API "UpdateIssue" HTTP REST request
+    /// </summary>
     class UpdateIssueRequest : HttpRequest,
                                IUpdateIssueRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">Trello connection source settings</param>
         public UpdateIssueRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public void Execute( Issue issue, IssueFieldId fieldsToUpdate)
         {
             int     fieldCount = 0;

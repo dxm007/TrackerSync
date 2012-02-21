@@ -21,6 +21,9 @@ using System.Text;
 
 namespace TrackerSync
 {
+    /// <summary>
+    /// Main class of the TrackerSync console application
+    /// </summary>
     class Program
     {
         static int Main( string[] args )

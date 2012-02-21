@@ -27,17 +27,32 @@ using TrackerSync.Data;
 
 namespace TrackerSync.Sources.GitHub
 {
+    /// <summary>
+    /// GitHub connection verification request which is issued when the source is first connected
+    /// </summary>
     class VerifyInfoRequest : HttpRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">GitHub connection source settings</param>
         public VerifyInfoRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <summary>
+        /// Invoked to execute the verification request.
+        /// </summary>
+        /// <remarks>
+        /// This method has no input or output parameters. If anything goes wrong during verification
+        /// process, an exception will be thrown.
+        /// </remarks>
         public void Execute()
         {
             SendRequest( BaseHttpReqUrlType.None, "/user" );
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse, Stream responseStream )
         {
             JObject jsonUser = JObject.Load( new JsonTextReader( new StreamReader( responseStream ) ) );
@@ -54,14 +69,21 @@ namespace TrackerSync.Sources.GitHub
     }
 
 
-
+    /// <summary>
+    /// GitHub API "GetIssuesList" HTTP REST request
+    /// </summary>
     class GetListOfIssuesRequest : HttpRequest,
                                    IGetIssuesListRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">GitHub connection source settings</param>
         public GetListOfIssuesRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public IEnumerable<Issue> Execute()
         {
             SendRequest( GetUrlSuffix( SourceSettings ) );
@@ -69,6 +91,7 @@ namespace TrackerSync.Sources.GitHub
             return _issues;
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse,
                                                 Stream          responseStream )
         {
@@ -96,14 +119,21 @@ namespace TrackerSync.Sources.GitHub
     }
 
 
-
+    /// <summary>
+    /// GitHub API "GetIssue" HTTP REST request
+    /// </summary>
     class GetIssueRequest : HttpRequest,
                             IGetIssueRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">GitHub connection source settings</param>
         public GetIssueRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public Issue Execute( string issueId )
         {
             SendRequest( "/issues/{0}", issueId );
@@ -111,6 +141,7 @@ namespace TrackerSync.Sources.GitHub
             return _issue;
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse, Stream responseStream )
         {
             JObject jsonIssue = JObject.Load( new JsonTextReader( new StreamReader( responseStream ) ) );
@@ -122,6 +153,7 @@ namespace TrackerSync.Sources.GitHub
                                                             IssueState.Open : IssueState.Closed };
         }
 
+        /// <inheritdoc/>
         protected override void HandleHttpFailure( WebException exception )
         {
             if( exception.Status == WebExceptionStatus.ProtocolError &&
@@ -140,26 +172,37 @@ namespace TrackerSync.Sources.GitHub
     }
 
 
-
+    /// <summary>
+    /// GitHub API "CloseIssue" HTTP REST request
+    /// </summary>
     class CloseIssueRequest : HttpRequest,
                               ICloseIssueRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">GitHub connection source settings</param>
         public CloseIssueRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public void Execute( Issue issue )
         {
             SendRequest( "/issues/{0}", issue.ID );
         }
 
+        /// <inheritdoc/>
         protected override string GetHttpMethod()
         {
             return "PATCH";
         }
 
+        /// <inheritdoc/>
         protected override void FillInHttpRequest( HttpWebRequest request )
         {
+            base.FillInHttpRequest( request );
+
             var writer = new StreamWriter( request.GetRequestStream() );
 
             writer.Write( "{\"state\":\"closed\"}" );
@@ -169,14 +212,21 @@ namespace TrackerSync.Sources.GitHub
     }
 
 
-
+    /// <summary>
+    /// GitHub API "AddIssue" HTTP REST request
+    /// </summary>
     class AddIssueRequest : HttpRequest,
                             IAddIssueRequest
     {
+        /// <summary>
+        /// Initializing constructor
+        /// </summary>
+        /// <param name="settings">GitHub connection source settings</param>
         public AddIssueRequest( Sources.SourceSettings settings ) : base( settings )
         {
         }
 
+        /// <inheritdoc/>
         public void Execute( Issue issue )
         {
             _issue = issue;
@@ -184,11 +234,13 @@ namespace TrackerSync.Sources.GitHub
             SendRequest( "/issues" );
         }
 
+        /// <inheritdoc/>
         protected override string GetHttpMethod()
         {
             return "POST";
         }
 
+        /// <inheritdoc/>
         protected override void FillInHttpRequest( HttpWebRequest request )
         {
             base.FillInHttpRequest( request );
@@ -196,6 +248,7 @@ namespace TrackerSync.Sources.GitHub
             request.ContentType = "application/vnd.github.v3+json";
         }
 
+        /// <inheritdoc/>
         protected override string GetRequestBody()
         {
             StringBuilder   sb = new StringBuilder();
@@ -213,6 +266,7 @@ namespace TrackerSync.Sources.GitHub
             return sb.ToString();
         }
 
+        /// <inheritdoc/>
         protected override void HandleResponse( HttpWebResponse httpResponse, Stream responseStream )
         {
             JObject jsonIssue = JObject.Load( new JsonTextReader( new StreamReader( responseStream ) ) );
