@@ -27,6 +27,7 @@
         Build     - Performs incremental build of all projects
         Rebuild   - Performs full rebuild of all projects
         Clean     - Cleans intermediate and output files from all projects.
+		Deploy	  - Creates redistributable files
 
     "/p:BumpVersion" specifies if build version should automatically be dumped up. This will change
     the version string in the master version file, Version.txt. NOTE: This only bumps up build versions
@@ -50,6 +51,7 @@
     <RootProjectDir>$(MSBuildProjectDirectory)\..</RootProjectDir>
     <BinDir>$(RootProjectDir)\Bin\$(Configuration)</BinDir>
     <SymbolsDir>$(RootProjectDir)\Symbols\$(Configuration)</SymbolsDir>
+	<RedistDir>$(RootProjectDir)\Redist</RedistDir>
     <SourceDir>$(RootProjectDir)\Src</SourceDir>
     <BuildDir>$(MSBuildProjectDirectory)</BuildDir>
     <GlobalAssemblyInfoFile>$(BuildDir)\GlobalAssemblyInfo.cs</GlobalAssemblyInfoFile>
@@ -73,10 +75,15 @@
   <ItemGroup>
     <SymbolFile Include="$(SymbolsDir)\*.*"/>
   </ItemGroup>
+  
+  <ItemGroup>
+    <RedistFile Include="$(RedistDir)\*.*"/>
+  </ItemGroup>  
 
   <Target Name="PrepareProjectFolders">
     <MakeDir Directories="$(BinDir)"/>
     <MakeDir Directories="$(SymbolsDir)"/>
+	<MakeDir Directories="$(RedistDir)"/>
 	
 	<Copy SourceFiles="$(RootProjectDir)\Third\Json.NET\4.0R5\Bin\Net\Newtonsoft.Json.dll" DestinationFolder="$(BinDir)" />
   </Target>
@@ -92,6 +99,27 @@
   </Target>
 
   <Target Name="Rebuild" DependsOnTargets="Clean;Build"/>
+
+  <Target Name="Deploy" DependsOnTargets="CleanRedist;Rebuild;MakeRedistZip;MakeSymbolsZip" />
+
+  <Target Name="CleanRedist">
+    <Delete Files="@(RedistFile)"/>
+  </Target>
+
+  <Target Name="MakeRedistZip">
+	<ItemGroup>
+		<RedistZipItem Include="$(BinDir)\*.exe" />
+		<RedistZipItem Include="$(RootProjectDir)\README.markdown" />
+		<RedistZipItem Include="$(RootProjectDir)\LICENSE.txt" />
+	</ItemGroup>
+    <Zip Files="@(RedistZipItem)" Flatten="True" ZipLevel="9"
+		 ZipFileName="$(RedistDir)\TrackerSync-$(VersionString).zip" />
+  </Target>
+  
+  <Target Name="MakeSymbolsZip">
+	  <Zip Files="@(SymbolFile)" Flatten="True" ZipLevel="9"
+		   ZipFileName="$(RedistDir)\TrackerSync-$(VersionString)-symbols.zip" />
+  </Target>
 
   <Target Name="UpdateVersionFiles" DependsOnTargets="OpenVersionFile;GenerateVerAssemblyInfo"/>
 
