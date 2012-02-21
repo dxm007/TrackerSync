@@ -32,9 +32,10 @@ To build TrackerSync, the following is required:
 2. [MSBuild Community Tasks][1] -- Adds useful commands (such as creation of zip files and handling version resources) for use in MSBuild scripts.
 
 When building the project in a fresh source tree, it is strongly recommended to first build the entire project on a command line using msbuild. To do so, open Visual Studio 2010 Command Prompt and run the following:
-> c:\...>cd Build
-> c:\...\Build>msbuild Build.proj /p:Configuration=Debug
-> c:\...\Build>msbuild Build.proj /p:Configuration=Release
+
+    c:\...>cd Build
+    c:\...\Build>msbuild Build.proj /p:Configuration=Debug
+    c:\...\Build>msbuild Build.proj /p:Configuration=Release
 
 Running msbuild will setup the full build environment by creating all necessary directories for binary and symbol files. Once msbuild is run once, subsequent builds of TrackerSync binaries can be done directly from Visual Studio 2010 IDE.
 
